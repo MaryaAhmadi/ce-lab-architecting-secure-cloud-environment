@@ -1,43 +1,126 @@
 # Lab M8.08 - Architecting a Secure Cloud Environment
 
-**Repository:** [https://github.com/cloud-engineering-bootcamp/ce-lab-architecting-secure-cloud-environment](https://github.com/cloud-engineering-bootcamp/ce-lab-architecting-secure-cloud-environment)
+**Repository:** https://github.com/MaryaAhmadi/ce-lab-architecting-secure-cloud-environment.git
 
 **Activity Type:** Individual  
 **Estimated Time:** 90 minutes
 
-## Learning Objectives
+## 📌 Overview
+This project implements a secure three-tier architecture on AWS using Terraform, following the principles of the AWS Well-Architected Security Pillar.
+The architecture demonstrates defense-in-depth, least privilege access, and secure-by-default infrastructure provisioning.
 
-- [ ] Design a secure three-tier architecture
-- [ ] Implement defense-in-depth security controls
-- [ ] Create Terraform baseline for secure deployments
-- [ ] Document architecture with security annotations
+## 🎯 Objectives
+Design a secure, production-ready cloud architecture
+Apply defense-in-depth security controls
+Implement least privilege IAM and network access
+Enable logging, monitoring, and threat detection
+Provision infrastructure using Infrastructure as Code (Terraform)
 
-## Prerequisites
+## 🧱 Architecture Overview
+The system is divided into three isolated tiers:
 
-- [ ] Terraform installed
-- [ ] AWS account
-- [ ] Completed Module 8 Lesson 8
+🌐 Web Tier (Public Subnets)
+Application Load Balancer (ALB)
+HTTPS only (HTTP → HTTPS redirect)
+AWS WAF protection
+Internet-facing
 
-## Task
+⚙️ App Tier (Private Subnets)
+EC2 or ECS Fargate (no public IP)
+IAM role with least privilege
+Secrets retrieved securely from AWS Secrets Manager
 
-Design and deploy a secure three-tier architecture using Terraform, implementing all security best practices from the module.
+🗄️ Data Tier (Private Subnets)
+Amazon RDS PostgreSQL
+No internet access
+Encrypted storage (KMS)
+Automated backups enabled
 
-## Architecture Requirements
+🗺️ Network Design
+Component	         |CIDR	                 |Purpose
+VPC	                  |10.0.0.0/16.              |	Main network
+Public Subnets.       |	10.0.1.0/24, 10.0.2.0/24	|ALB only
+Private App Subnets   |	10.0.11.0/24, 10.0.12.0/24|	Application tier
+Private Data Subnets	|10.0.21.0/24, 10.0.22.0/24	|Database tier
 
-**Web Tier (Public Subnet):**
-- Application Load Balancer
-- HTTPS only (redirect HTTP to HTTPS)
-- WAF enabled
+## 🔐 Security Architecture
 
-**App Tier (Private Subnet):**
-- EC2 or ECS Fargate
-- IAM role with least privilege
-- Secrets Manager for database credentials
+🛡️ Defense in Depth
+Layer	| Control
+Perimeter|	AWS WAF (OWASP protection)
+Network	|Security Groups (least privilege)
+Compute	|IAM roles (no hardcoded credentials)
+Data	     |Encryption at rest & in transit
+Monitoring|	CloudTrail, Flow Logs, GuardDuty
 
-**Data Tier (Private Subnet):**
-- RDS PostgreSQL (encrypted)
-- No internet access
-- Automated backups enabled
+
+##🔑 Security Controls Implemented
+
+1. Network Security
+- Public access limited to ALB only
+- App tier accessible only from ALB
+- Database accessible only from app tier
+- No direct internet access to private subnets
+
+2. Identity & Access Management
+- IAM roles instead of access keys
+- Least privilege policies enforced
+- No SSH access (Session Manager recommended)
+
+3. Data Protection
+- RDS encryption using AWS KMS
+- TLS enforced for data in transit
+- Secrets stored in AWS Secrets Manager
+
+4. Logging & Monitoring
+- AWS CloudTrail enabled (multi-region)
+- VPC Flow Logs capturing ALL traffic
+- AWS GuardDuty enabled for threat detection
+- AWS Security Hub enabled for compliance visibility
+
+## 🧰 Technologies Used
+- Terraform (Infrastructure as Code)
+- AWS VPC
+- AWS EC2 / ECS Fargate
+- AWS RDS (PostgreSQL)
+- AWS KMS
+- AWS CloudTrail
+- AWS CloudWatch Logs
+- AWS GuardDuty
+- AWS Security Hub
+- AWS WAF
+
+## 📂 Project Structure
+.
+├── vpc.tf
+├── security-groups.tf
+├── rds.tf
+├── monitoring.tf
+├── architecture-doc.md
+│   
+└── screenshots/
+     └──security-group-rules.png
+     └──flow-logs-active.png
+     └──cloudtrail-active.png
+     └──cloudtrail-runinstances-event.png
+     └──ebs-encryption-enabled.png
+
+## 🚀 Deployment Instructions
+
+1. Initialize Terraform
+terraform init
+
+2. Validate configuration
+terraform validate
+
+3. Preview changes
+terraform plan
+
+4. Deploy infrastructure
+terraform apply
+
+
+
 
 ## Step-by-Step Instructions
 
@@ -272,19 +355,53 @@ Create `architecture-doc.md`:
 | Privilege Escalation | Least privilege IAM |
 ```
 
-## Submission
 
-- Complete Terraform code for secure architecture
-- `architecture-doc.md` with security annotations
-- Architecture diagram (draw.io or similar)
-- Screenshot of deployed resources
+## ✅ Verification Checklist
 
-## Verification Checklist
+✅ VPC with segmented subnets (public, app, data)
 
-- [ ] VPC with public, private app, and private data subnets
-- [ ] Security groups with least-privilege rules
-- [ ] RDS encrypted and in private subnet
-- [ ] CloudTrail, Flow Logs, GuardDuty enabled
-- [ ] Documentation complete
+✅ Security groups enforce least privilege
 
-**Good luck! 🔒**
+✅ RDS is encrypted and not publicly accessible
+
+✅ CloudTrail logging enabled
+
+✅ VPC Flow Logs active
+
+✅ GuardDuty enabled
+
+✅ Security Hub enabled
+
+✅ No direct SSH access to instances
+
+##  ⚠️ Security Best Practices Applied
+- Principle of Least Privilege (PoLP)
+- Defense in Depth
+- Secure by Default Infrastructure
+- Zero Trust Network Model
+- Encryption Everywhere
+- Observability & Traceability
+🧠 Threat        |Mitigation
+Threat	        |Mitigation
+SQL Injection.   |	WAF + parameterized queries
+Data Breach	    | Encryption + private subnets
+DDoS	              |AWS Shield + ALB
+Unauthorized Access|	IAM least privilege
+Lateral Movement	   |Subnet isolation
+ ##  📄 Documentation
+
+Detailed architecture explanation:
+👉 architecture-doc.md 
+
+
+##  🧹 Cleanup
+terraform destroy
+
+
+## 🏁 Final Note
+
+This project demonstrates how to build a secure, production-ready cloud environment using Terraform and AWS best practices.
+
+Security is not an add-on — it is the foundation.
+
+
